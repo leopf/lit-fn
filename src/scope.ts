@@ -6,6 +6,7 @@ import { EventManager } from "./event-manager";
 export interface IScopeResult {
     template: TemplateResult;
     props: any;
+    checkProps: boolean;
 }
 
 export class Scope extends EventManager {
@@ -61,17 +62,29 @@ export class Scope extends EventManager {
     public setCache(template: TemplateResult, props: any) {
         this._cachedResult = {
             props: props,
-            template
+            template,
+            checkProps: false
         };
     }
-    public resetCache(deep: boolean = false) {
+    public resetCache(deepSoft: boolean = false) {
         this._cachedResult = undefined;
 
-        if (deep) {
-            this.indexSubscopes.forEach(scope => scope.resetCache(true));
-            this.keySubscopes.forEach(scope => scope.resetCache(true));
+        if (deepSoft) {
+            this.indexSubscopes.forEach(scope => scope.resetCacheSoft(true));
+            this.keySubscopes.forEach(scope => scope.resetCacheSoft(true));
         }
     }
+    private resetCacheSoft(deep: boolean = false) {
+        if (this._cachedResult) {
+            this._cachedResult.checkProps = true;
+        }
+
+        if (deep) {
+            this.indexSubscopes.forEach(scope => scope.resetCacheSoft(true));
+            this.keySubscopes.forEach(scope => scope.resetCacheSoft(true));
+        }
+    }
+
     public dispose() {
         this.indexSubscopes.forEach(subscope => subscope.dispose());
         Array.from(this.keySubscopes.values()).forEach(subscope => subscope.dispose());
