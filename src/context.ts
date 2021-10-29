@@ -28,7 +28,7 @@ export class Context<T> extends EventManager {
     }
 
     public updateScope() {
-        this.scope.emit("update", undefined);
+        this.scope.emit("update", this.scope);
     }
     public dispose() {
         this.innerEmit("dispose", undefined);

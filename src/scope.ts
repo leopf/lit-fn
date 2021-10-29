@@ -1,6 +1,12 @@
+import { TemplateResult } from "lit-html";
 import { Context } from "./context";
 import { currentScope, pushIndexedScope, pushKeyedScope, setScope } from "./data";
 import { EventManager } from "./event-manager";
+
+export interface IScopeResult {
+    template: TemplateResult;
+    props: any;
+}
 
 export class Scope extends EventManager {
     private contextCounter: number = 0;
@@ -11,6 +17,11 @@ export class Scope extends EventManager {
     private keySubscopes: Map<unknown, Scope> = new Map();
 
     private contexts: Context<any>[] = [];
+
+    private _cachedResult?: IScopeResult;
+    public get cachedResult() {
+        return this._cachedResult;
+    }
 
     private _superScope : Scope | undefined;
     public get superScope() : Scope | undefined {
@@ -47,6 +58,20 @@ export class Scope extends EventManager {
         this.keySubscopes = new Map(usedKeyedSubscopes);
     }
 
+    public setCache(template: TemplateResult, props: any) {
+        this._cachedResult = {
+            props: props,
+            template
+        };
+    }
+    public resetCache(deep: boolean = false) {
+        this._cachedResult = undefined;
+
+        if (deep) {
+            this.indexSubscopes.forEach(scope => scope.resetCache(true));
+            this.keySubscopes.forEach(scope => scope.resetCache(true));
+        }
+    }
     public dispose() {
         this.indexSubscopes.forEach(subscope => subscope.dispose());
         Array.from(this.keySubscopes.values()).forEach(subscope => subscope.dispose());
@@ -65,6 +90,10 @@ export class Scope extends EventManager {
     }
 
     public emit(event: string, msg: any) {
+        if (event === "update") {
+            this.resetCache(msg === this);
+        }
+
         if (this.superScope) {
             this.superScope.emit(event, msg);
         }
