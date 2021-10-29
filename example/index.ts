@@ -2,25 +2,30 @@ import { html } from "lit-html";
 import { ref } from "lit-html/directives/ref.js";
 import { useEffect, useRef, useState, repeat, renderToElement, makeComponent } from "../src/";
 
+const buttonAlerter = makeComponent((props: {}) => {
+    return html`<button @click=${() => window.alert("You made a mistake!")}>DONT PRESS ME</button>`;
+});
+
 const counter = makeComponent((props: { onSort: () => void, onRemoveLast: () => void }) => {
-    const [ counter, setCounter ] = useState(0);
+    const [ count, setCount ] = useState(0);
 
     useEffect(() => {
         console.log("counter updated!");
-        if (counter === 10) {
+        if (count === 10) {
             props.onSort.call(null);
         }
-        if (counter === 12) {
+        if (count === 12) {
             props.onRemoveLast.call(null);
         }
-    }, [counter]);
+    }, [count]);
 
     return html`
-    <div>${counter}</div>
+    <div>${count}</div>
     <button @click=${() => {
         console.log("inc");
-        setCounter(counter + 1);
+        setCount(count + 1);
     }}>increase</button>
+    ${buttonAlerter({})}
     `;
 })
 

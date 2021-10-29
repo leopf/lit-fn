@@ -12,7 +12,7 @@ export function comp<T>(compFn: (props: T) => TemplateResult, props: T, key?: un
     let res: TemplateResult;
     if (currentScope!.cachedResult && 
             (!currentScope!.cachedResult.checkProps || 
-            propsEqual(currentScope!.cachedResult.props, props))) {
+            propsEqual(currentScope!.cachedResult.props || {}, props || {}))) {
         
         res = currentScope!.cachedResult.template;
     }
@@ -36,7 +36,8 @@ function propsEqual(a:any, b: any) {
     if (keysA.length !== keysB.length) {
         return false;
     }
-    const keySet = new Set([ ...keysA, keysB ]);  
+
+    const keySet = new Set([ ...keysA, ...keysB ]);  
     if (keySet.size !== keysA.length) {
         return false;
     }
