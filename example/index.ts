@@ -30,10 +30,10 @@ const testComp = makeComponent(() => {
             name: "Liam"
         }, 
         {
-            name: "Noah"
-        }, 
-        {
             name: "Oliver"
+        },
+        {
+            name: "Noah"
         }
     ]);
 
